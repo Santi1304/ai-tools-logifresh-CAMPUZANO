@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LogiFresh México · Tablero de desempeño operativo (abr–jun 2026)</title>
+<meta name="description" content="Tablero ejecutivo de cadena de frío LogiFresh México con datos sintéticos, abril a junio de 2026.">
+<style>
+:root{
+  --azul:#0072B2; --naranja:#E69F00; --verde:#009E73; --rosa:#CC79A7; --rojo:#D55E00;
+  --tinta:#12212e; --tinta-2:#4a5a68; --linea:#dde3e8; --fondo:#f4f6f8; --panel:#ffffff;
+  --alerta:#8a3b00; --ok:#0b6b53;
+  --r:10px; --s:16px;
+  --fuente: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:var(--fuente);background:var(--fondo);color:var(--tinta);font-size:15px;line-height:1.45;-webkit-text-size-adjust:100%}
+.wrap{max-width:1240px;margin:0 auto;padding:20px 16px 56px}
+a{color:#005a8d}
+h1{font-size:1.5rem;margin:0 0 4px;line-height:1.2}
+h2{font-size:1.02rem;margin:0 0 2px}
+h3{font-size:.92rem;margin:0 0 6px}
+p{margin:0 0 8px}
+.sub{color:var(--tinta-2);font-size:.86rem}
+.panel{background:var(--panel);border:1px solid var(--linea);border-radius:var(--r);padding:var(--s);margin-bottom:16px}
+header.panel{border-left:5px solid var(--azul)}
+.tag{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:3px 8px;border-radius:999px;border:1px solid;margin:2px 6px 2px 0}
+.tag.sint{color:var(--alerta);border-color:#e2b48f;background:#fdf3ea}
+.tag.per{color:#00506e;border-color:#a9d2e6;background:#eaf5fb}
+.tag.meta{color:var(--ok);border-color:#a4d6c8;background:#eaf7f3}
+
+/* ---------- KPIs ---------- */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.kpi{background:var(--panel);border:1px solid var(--linea);border-radius:var(--r);padding:12px 14px}
+.kpi .lbl{font-size:.76rem;text-transform:uppercase;letter-spacing:.04em;color:var(--tinta-2);font-weight:700}
+.kpi .val{font-size:1.72rem;font-weight:700;line-height:1.15;margin:2px 0 0;font-variant-numeric:tabular-nums}
+.kpi .uni{font-size:.8rem;font-weight:600;color:var(--tinta-2)}
+.kpi .ctx{font-size:.78rem;color:var(--tinta-2);margin-top:3px}
+.kpi.alerta{border-left:5px solid var(--rojo)}
+.kpi.bien{border-left:5px solid var(--verde)}
+.kpi.neutro{border-left:5px solid #b9c4cd}
+
+/* ---------- Filtros ---------- */
+.filtros{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.f label{display:block;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--tinta-2);margin-bottom:3px}
+select{width:100%;padding:7px 8px;font-size:.9rem;font-family:inherit;color:var(--tinta);background:#fff;border:1px solid #b9c4cd;border-radius:6px}
+select:focus-visible,button:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:3px solid #0072B2;outline-offset:2px}
+.barra-acc{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-top:12px}
+button{font-family:inherit;font-size:.88rem;font-weight:600;padding:8px 14px;border-radius:6px;border:1px solid var(--azul);background:var(--azul);color:#fff;cursor:pointer}
+button.sec{background:#fff;color:#005a8d}
+button:hover{filter:brightness(1.08)}
+#resumen-filtros{font-size:.85rem;color:var(--tinta-2)}
+#resumen-filtros b{color:var(--tinta)}
+
+/* ---------- Gráficas ---------- */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.chart-wrap{overflow-x:auto}
+svg{display:block;max-width:100%;height:auto}
+.g-txt{font-size:11px;fill:var(--tinta-2)}
+.g-val{font-size:11px;font-weight:700;fill:var(--tinta)}
+.g-cat{font-size:11.5px;fill:var(--tinta)}
+.nota{font-size:.78rem;color:var(--tinta-2);margin-top:8px}
+.vacio{padding:22px;text-align:center;color:var(--alerta);background:#fdf3ea;border:1px dashed #e2b48f;border-radius:8px;font-size:.9rem}
+
+/* ---------- Tabla ---------- */
+.tabla-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:.83rem;min-width:760px}
+th,td{padding:6px 9px;border-bottom:1px solid var(--linea);text-align:left;white-space:nowrap}
+th{background:#eef2f5;font-size:.74rem;text-transform:uppercase;letter-spacing:.03em;color:var(--tinta-2);position:sticky;top:0}
+td.num{text-align:right;font-variant-numeric:tabular-nums}
+tbody tr:nth-child(even){background:#fafbfc}
+.pill{display:inline-block;padding:1px 7px;border-radius:999px;font-size:.74rem;font-weight:700;border:1px solid}
+.pill.no{color:var(--rojo);border-color:#eebfa0;background:#fdf1e9}
+.pill.si{color:var(--ok);border-color:#a4d6c8;background:#eef8f5}
+
+/* ---------- Interpretación ---------- */
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.caja{border:1px solid var(--linea);border-radius:var(--r);padding:14px;background:#fff}
+.caja.hechos{border-top:4px solid var(--azul)}
+.caja.hipo{border-top:4px solid var(--naranja)}
+.caja.paso{border-top:4px solid var(--verde)}
+.caja h3{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em}
+.caja ul{margin:0;padding-left:18px;font-size:.87rem}
+.caja li{margin-bottom:7px}
+dl{margin:0;font-size:.84rem}
+dt{font-weight:700;margin-top:8px}
+dd{margin:0 0 0 0;color:var(--tinta-2)}
+footer{font-size:.8rem;color:var(--tinta-2)}
+code{overflow-wrap:anywhere;word-break:break-word;font-size:.92em}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+.skip{position:absolute;left:-999px}
+.skip:focus{left:8px;top:8px;position:fixed;background:#fff;padding:8px;z-index:99;border:2px solid var(--azul);border-radius:6px}
+@media (max-width:980px){.kpis{grid-template-columns:repeat(2,1fr)}.filtros{grid-template-columns:repeat(2,1fr)}.grid2,.grid3{grid-template-columns:1fr}}
+@media (max-width:520px){.kpis{grid-template-columns:1fr 1fr}.filtros{grid-template-columns:1fr}h1{font-size:1.22rem}.kpi .val{font-size:1.45rem}}
+@media print{body{background:#fff}.panel{break-inside:avoid}}
+</style>
+</head>
+<body>
+<a class="skip" href="#contenido">Saltar a los indicadores</a>
+<div class="wrap">
+
+<header class="panel">
+  <h1>LogiFresh México · Tablero de desempeño operativo de cadena de frío</h1>
+  <p class="sub"><strong>Pregunta de decisión:</strong> ¿en qué segmentos debería concentrarse un piloto de mejora de 30 días y qué evidencia adicional hace falta antes de intervenir?</p>
+  <p>
+    <span class="tag per">Periodo: 1 abr – 28 jun 2026</span>
+    <span class="tag meta">Meta SLA de referencia: 90 %</span>
+    <span class="tag sint">Datos sintéticos · sin información personal ni real</span>
+  </p>
+  <p class="sub" id="pie-actualizacion">Fuente: <code>Datos_sinteticos_LogiFresh_dashboard.xlsx</code>, hoja <em>Datos</em> (240 embarques). Todos los cálculos se ejecutan en el navegador.</p>
+</header>
+
+<main id="contenido">
+
+<!-- ====== FILTROS ====== -->
+<section class="panel" aria-labelledby="h-filtros">
+  <h2 id="h-filtros">Filtros</h2>
+  <p class="sub">Todos los indicadores, gráficas y la tabla responden simultáneamente a esta selección.</p>
+  <div class="filtros" id="filtros"></div>
+  <div class="barra-acc">
+    <p id="resumen-filtros" role="status" aria-live="polite"></p>
+    <button type="button" id="btn-reset">Restablecer filtros</button>
+  </div>
+</section>
+
+<!-- ====== KPIs ====== -->
+<section aria-labelledby="h-kpi">
+  <h2 id="h-kpi" class="sr">Indicadores clave</h2>
+  <div class="kpis" id="kpis"></div>
+</section>
+
+<div id="aviso-vacio" style="display:none" class="panel">
+  <div class="vacio" role="status">
+    <strong>Sin resultados.</strong> La combinación de filtros seleccionada no contiene embarques.
+    Los indicadores se muestran en cero y las gráficas quedan vacías a propósito.
+    Usa <em>Restablecer filtros</em> para volver a los 240 embarques.
+  </div>
+</div>
+
+<!-- ====== GRÁFICAS ====== -->
+<div class="grid2">
+  <section class="panel" aria-labelledby="h-mes">
+    <h2 id="h-mes">Cumplimiento de SLA por mes</h2>
+    <p class="sub" id="sub-mes">Porcentaje de embarques entregados dentro del compromiso, contra la meta de 90 %.</p>
+    <div class="chart-wrap"><div id="chart-mes"></div></div>
+    <p class="nota">Unidad: % de embarques que cumplen sobre el total del mes. La línea punteada marca la meta de 90 %. La etiqueta <em>n</em> indica el volumen del mes; un porcentaje sobre pocos embarques es menos estable.</p>
+  </section>
+
+  <section class="panel" aria-labelledby="h-seg">
+    <h2 id="h-seg">Cumplimiento de SLA por segmento</h2>
+    <p class="sub">Elige la dimensión de corte. Ordenado de menor a mayor cumplimiento.</p>
+    <div class="f" style="max-width:260px;margin:8px 0 10px">
+      <label for="dim-seg">Dimensión</label>
+      <select id="dim-seg">
+        <option value="transportista">Transportista</option>
+        <option value="tipo_ruta">Tipo de ruta</option>
+        <option value="producto">Producto</option>
+        <option value="origen">Origen</option>
+        <option value="destino">Destino</option>
+      </select>
+    </div>
+    <div class="chart-wrap"><div id="chart-seg"></div></div>
+    <p class="nota">Unidad: % de cumplimiento. Barras en naranja: por debajo de la meta de 90 %. Comparar segmentos con <em>n</em> muy distinto puede llevar a conclusiones frágiles.</p>
+  </section>
+
+  <section class="panel" aria-labelledby="h-inc">
+    <h2 id="h-inc">Incidentes registrados por categoría</h2>
+    <p class="sub">Frecuencia observada. Describe lo registrado; <strong>no</strong> demuestra causa del retraso ni de la reclamación.</p>
+    <div class="chart-wrap"><div id="chart-inc"></div></div>
+    <p class="nota">Unidad: número de embarques con incidente registrado. Se excluye la categoría «Sin incidente», que se reporta aparte en el KPI de incidentes.</p>
+  </section>
+
+  <section class="panel" aria-labelledby="h-recl">
+    <h2 id="h-recl">Reclamaciones acumuladas</h2>
+    <p class="sub">Impacto económico agregado por dimensión seleccionada.</p>
+    <div class="f" style="max-width:260px;margin:8px 0 10px">
+      <label for="dim-recl">Dimensión</label>
+      <select id="dim-recl">
+        <option value="tipo_incidente">Tipo de incidente</option>
+        <option value="producto">Producto</option>
+        <option value="transportista">Transportista</option>
+        <option value="destino">Destino</option>
+        <option value="tipo_ruta">Tipo de ruta</option>
+      </select>
+    </div>
+    <div class="chart-wrap"><div id="chart-recl"></div></div>
+    <p class="nota">Unidad: pesos mexicanos (MXN) acumulados en el periodo filtrado. Sólo 15 de 240 embarques registran reclamación &gt; 0, por lo que unos pocos casos dominan el total.</p>
+  </section>
+</div>
+
+<!-- ====== TABLA ====== -->
+<section class="panel" aria-labelledby="h-tabla">
+  <h2 id="h-tabla">Detalle de embarques</h2>
+  <p class="sub" id="sub-tabla"></p>
+  <div class="tabla-scroll">
+    <table id="tabla">
+      <caption class="sr">Detalle de embarques filtrados</caption>
+      <thead><tr>
+        <th scope="col">ID</th><th scope="col">Fecha</th><th scope="col">Origen</th><th scope="col">Destino</th>
+        <th scope="col">Producto</th><th scope="col">Transportista</th><th scope="col">Ruta</th><th scope="col">SLA</th>
+        <th scope="col">Retraso (min)</th><th scope="col">Incidente</th><th scope="col">Temp. máx (°C)</th>
+        <th scope="col">Reclamación (MXN)</th><th scope="col">Satisf. (1–10)</th>
+      </tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+  <div class="barra-acc">
+    <p class="sub" id="paginacion-info"></p>
+    <span><button type="button" class="sec" id="btn-menos">Anterior</button>
+    <button type="button" class="sec" id="btn-mas">Siguiente</button></span>
+  </div>
+</section>
+
+<!-- ====== INTERPRETACIÓN ====== -->
+<section class="panel" aria-labelledby="h-interp">
+  <h2 id="h-interp">Interpretación: hechos, hipótesis y próximo paso</h2>
+  <p class="sub">Los hechos se recalculan con los filtros activos. Las hipótesis y el próximo paso corresponden al conjunto completo de 240 embarques y no cambian con los filtros.</p>
+  <div class="grid3" style="margin-top:12px">
+    <div class="caja hechos">
+      <h3>Hechos (verificables en los datos)</h3>
+      <ul id="lista-hechos"></ul>
+    </div>
+    <div class="caja hipo">
+      <h3>Hipótesis por validar (no probadas)</h3>
+      <ul>
+        <li><strong>H1 — Concentración temporal.</strong> Todos los incumplimientos del periodo ocurren en junio de 2026, mientras abril y mayo cumplen al 100 %. Hipótesis: un cambio operativo, estacional o de registro iniciado en junio explica la caída. <em>No demostrado:</em> el dato sólo muestra coincidencia temporal, no causa.</li>
+        <li><strong>H2 — Concentración económica.</strong> 15 de 240 embarques concentran el 100 % de las reclamaciones. Hipótesis: existe un subconjunto de embarques de alto valor o alta sensibilidad térmica que explica el impacto económico. <em>No demostrado:</em> el archivo no incluye valor de la carga ni costo unitario.</li>
+      </ul>
+    </div>
+    <div class="caja paso">
+      <h3>Próximo paso — piloto de 30 días</h3>
+      <ul>
+        <li><strong>Segmento:</strong> embarques con salida en junio, priorizando ruta Estándar y destinos Hermosillo y Chihuahua (mayor reclamación acumulada).</li>
+        <li><strong>Basal:</strong> SLA 76.7 %, retraso promedio de tardíos 51.8 min, reclamaciones $882,549 MXN en el trimestre.</li>
+        <li><strong>Intervención:</strong> registro obligatorio de causa raíz y de tiempos por etapa (salida, tránsito, ventana de entrega) en el 100 % de los embarques del segmento.</li>
+        <li><strong>Criterio de éxito a 30 días:</strong> ≥ 95 % de embarques con causa raíz clasificada y tiempos por etapa completos. <em>No</em> se fija todavía una meta de SLA, porque aún no hay evidencia de causa sobre la que intervenir.</li>
+        <li><strong>Responsable e indicador de seguimiento:</strong> jefatura de operaciones; % de embarques con causa raíz validada, revisado semanalmente.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ====== DEFINICIONES Y LÍMITES ====== -->
+<section class="panel" aria-labelledby="h-def">
+  <h2 id="h-def">Definiciones, límites y trazabilidad</h2>
+  <div class="grid2" style="margin-top:10px">
+    <div>
+      <h3>Definiciones de cálculo</h3>
+      <dl>
+        <dt>Embarques</dt><dd>Conteo de filas (<code>id_embarque</code> único) tras aplicar filtros.</dd>
+        <dt>SLA (%)</dt><dd><code>sla_entrega = "Cumple"</code> ÷ total de embarques filtrados × 100. Sin filtros: 184 ÷ 240 = 76.7 %.</dd>
+        <dt>Brecha vs. meta</dt><dd>SLA observado − 90 puntos porcentuales. Se expresa en <strong>puntos porcentuales (pp)</strong>, no en %.</dd>
+        <dt>Retraso promedio de tardíos</dt><dd>Media de <code>retraso_min</code> únicamente sobre embarques con <code>sla_entrega = "No cumple"</code> (n = 56 sin filtros). Los embarques que cumplen tienen retraso 0 y quedan excluidos del denominador.</dd>
+        <dt>Incidentes</dt><dd>Embarques con <code>tipo_incidente</code> distinto de «Sin incidente».</dd>
+        <dt>Excursiones &gt; 8 °C</dt><dd><code>excursion_temp_mayor_8c = "Sí"</code>. Coincide con <code>temperatura_max_c &gt; 8</code> en los 240 registros (verificado).</dd>
+        <dt>Reclamaciones</dt><dd>Suma de <code>reclamacion_mxn</code> en MXN corrientes, sin deflactar.</dd>
+        <dt>Satisfacción</dt><dd>Promedio simple de <code>satisfaccion_1_10</code>; escala ordinal de 1 a 10 tratada como numérica (supuesto explícito).</dd>
+      </dl>
+    </div>
+    <div>
+      <h3>Límites y advertencias</h3>
+      <ul style="font-size:.85rem;padding-left:18px">
+        <li><strong>Asociación ≠ causalidad.</strong> Ninguna cifra de este tablero identifica la causa de un retraso, de una excursión térmica o de una reclamación. El archivo no contiene causa raíz validada.</li>
+        <li><strong>Estructura sintética evidente.</strong> Los cuatro transportistas registran exactamente el mismo cumplimiento (76.7 %) y las categorías de incidente se distribuyen de forma regular. El dataset no contiene señal real de diferencia entre transportistas; <strong>no debe usarse para evaluar proveedores</strong>.</li>
+        <li><strong>Incidentes y SLA son disjuntos.</strong> Los 52 embarques con incidente registrado cumplieron el SLA, y los 56 incumplimientos no tienen incidente clasificado. Esto es un artefacto de la generación sintética y confirma que el registro de incidentes está incompleto respecto de los incumplimientos.</li>
+        <li><strong>Discrepancia de control documentada.</strong> La guía indica reclamaciones por $882,649 MXN; la suma exacta del archivo es <strong>$882,549 MXN</strong> (diferencia de $100). El tablero muestra el valor calculado del archivo. Ver <code>REPORTE_VALIDACION.md</code>.</li>
+        <li><strong>Datos faltantes para decidir:</strong> causa raíz validada, tiempos por etapa, condiciones externas (clima, tráfico verificado), costo de la intervención, valor de la carga y exposición por segmento.</li>
+        <li><strong>Uso permitido:</strong> priorizar dónde observar y qué medir. <strong>Uso no permitido:</strong> sancionar proveedores, cambiar rutas de forma definitiva o sustentar conclusiones regulatorias.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer class="panel">
+  <p>Datos <strong>sintéticos</strong> generados para fines académicos. No contienen información personal ni operaciones reales. Periodo 1 abr – 28 jun 2026 · 240 embarques · Moneda: MXN · Temperatura: °C · Retraso: minutos.</p>
+  <p id="pie-fecha"></p>
+</footer>
+
+</main>
+</div>
+
+<script src="datos.js"></script>
+<script>
+(function(){
+"use strict";
+var D = window.LOGIFRESH, COLS = D.columns;
+var IDX = {}; COLS.forEach(function(c,i){IDX[c]=i;});
+var DATA = D.rows;
+var META_SLA = 90;
+
+var C = {azul:"#0072B2", naranja:"#E69F00", verde:"#009E73", rosa:"#CC79A7", rojo:"#D55E00", gris:"#9aa8b3"};
+var nf0 = new Intl.NumberFormat("es-MX",{maximumFractionDigits:0});
+var nf1 = new Intl.NumberFormat("es-MX",{minimumFractionDigits:1,maximumFractionDigits:1});
+var MESES = {"2026-04":"Abr 2026","2026-05":"May 2026","2026-06":"Jun 2026"};
+
+function mesDe(f){ return f.slice(0,7); }
+function g(r,c){ return r[IDX[c]]; }
+function esc(s){ return String(s).replace(/[&<>"]/g,function(m){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m];}); }
+function mxn(v){ return "$"+nf0.format(Math.round(v)); }
+
+/* ---------- Filtros ---------- */
+var DEFS = [
+  {k:"mes",      lbl:"Mes",           get:function(r){return mesDe(g(r,"fecha_salida"));}, fmt:function(v){return MESES[v]||v;}},
+  {k:"origen",   lbl:"Origen",        get:function(r){return g(r,"origen");}},
+  {k:"destino",  lbl:"Destino",       get:function(r){return g(r,"destino");}},
+  {k:"producto", lbl:"Producto",      get:function(r){return g(r,"producto");}},
+  {k:"transportista", lbl:"Transportista", get:function(r){return g(r,"transportista");}},
+  {k:"tipo_ruta", lbl:"Tipo de ruta", get:function(r){return g(r,"tipo_ruta");}},
+  {k:"sla_entrega", lbl:"SLA",        get:function(r){return g(r,"sla_entrega");}},
+  {k:"tipo_incidente", lbl:"Incidente", get:function(r){return g(r,"tipo_incidente");}}
+];
+var estado = {}; DEFS.forEach(function(d){estado[d.k]="__todos__";});
+var pagina = 0, PAG = 25;
+
+var cont = document.getElementById("filtros");
+DEFS.forEach(function(d){
+  var vals = {}; DATA.forEach(function(r){vals[d.get(r)]=1;});
+  var lista = Object.keys(vals).sort();
+  var div = document.createElement("div"); div.className="f";
+  var id = "flt-"+d.k;
+  var opts = '<option value="__todos__">Todos</option>' + lista.map(function(v){
+    return '<option value="'+esc(v)+'">'+esc(d.fmt?d.fmt(v):v)+'</option>';}).join("");
+  div.innerHTML = '<label for="'+id+'">'+d.lbl+'</label><select id="'+id+'" data-k="'+d.k+'">'+opts+'</select>';
+  cont.appendChild(div);
+  div.querySelector("select").addEventListener("change", function(e){
+    estado[d.k] = e.target.value; pagina = 0; render();
+  });
+});
+
+document.getElementById("btn-reset").addEventListener("click", function(){
+  DEFS.forEach(function(d){ estado[d.k]="__todos__"; document.getElementById("flt-"+d.k).value="__todos__"; });
+  pagina = 0; render();
+  document.getElementById("resumen-filtros").focus();
+});
+document.getElementById("dim-seg").addEventListener("change", render);
+document.getElementById("dim-recl").addEventListener("change", render);
+document.getElementById("btn-menos").addEventListener("click", function(){ if(pagina>0){pagina--;render();} });
+document.getElementById("btn-mas").addEventListener("click", function(){ pagina++; render(); });
+
+function filtrar(){
+  return DATA.filter(function(r){
+    for(var i=0;i<DEFS.length;i++){
+      var d=DEFS[i]; if(estado[d.k]!=="__todos__" && d.get(r)!==estado[d.k]) return false;
+    }
+    return true;
+  });
+}
+
+/* ---------- Métricas ---------- */
+function metricas(rows){
+  var n = rows.length;
+  var cumple=0, tard=[], inc=0, exc=0, recl=0, sat=0;
+  rows.forEach(function(r){
+    if(g(r,"sla_entrega")==="Cumple") cumple++; else tard.push(g(r,"retraso_min"));
+    if(g(r,"tipo_incidente")!=="Sin incidente") inc++;
+    if(g(r,"excursion_temp_mayor_8c")==="Sí") exc++;
+    recl += g(r,"reclamacion_mxn");
+    sat  += g(r,"satisfaccion_1_10");
+  });
+  var sla = n? cumple/n*100 : null;
+  var retProm = tard.length? tard.reduce(function(a,b){return a+b;},0)/tard.length : null;
+  return {n:n, cumple:cumple, sla:sla, brecha: sla===null?null:sla-META_SLA,
+          tardios:tard.length, retProm:retProm, inc:inc, exc:exc, recl:recl,
+          sat: n? sat/n : null};
+}
+
+/* ---------- KPIs ---------- */
+function pintarKPIs(m){
+  var na = '<span class="uni">s/d</span>';
+  var k = [
+    {lbl:"Embarques", val: nf0.format(m.n), uni:"", ctx: m.n===DATA.length? "Total del periodo (sin filtros)" : "de 240 en el periodo completo", tono:"neutro"},
+    {lbl:"SLA de entrega", val: m.sla===null? na : nf1.format(m.sla), uni: m.sla===null?"":"%",
+     ctx: m.sla===null? "Sin embarques en la selección" : (m.cumple+" de "+m.n+" cumplen · meta 90 %"),
+     tono: m.sla===null?"neutro":(m.sla>=META_SLA?"bien":"alerta")},
+    {lbl:"Brecha vs. meta 90 %", val: m.brecha===null? na : (m.brecha>=0?"+":"")+nf1.format(m.brecha), uni: m.brecha===null?"":"pp",
+     ctx:"Puntos porcentuales contra la meta de referencia", tono: m.brecha===null?"neutro":(m.brecha>=0?"bien":"alerta")},
+    {lbl:"Retraso prom. de tardíos", val: m.retProm===null? na : nf1.format(m.retProm), uni: m.retProm===null?"":"min",
+     ctx: m.retProm===null? "Ningún embarque tardío en la selección" : ("Sólo sobre "+m.tardios+" embarques que no cumplen"), tono: m.retProm===null?"bien":"alerta"},
+    {lbl:"Incidentes registrados", val: nf0.format(m.inc), uni:"",
+     ctx: m.n? nf1.format(m.n?m.inc/m.n*100:0)+" % de los embarques filtrados" : "Sin embarques", tono:"neutro"},
+    {lbl:"Excursiones > 8 °C", val: nf0.format(m.exc), uni:"",
+     ctx:"Alerta de cadena de frío (temperatura máxima)", tono: m.exc>0?"alerta":"bien"},
+    {lbl:"Reclamaciones", val: m.n? mxn(m.recl) : na, uni:"",
+     ctx:"MXN acumulados en la selección", tono: m.recl>0?"alerta":"neutro"},
+    {lbl:"Satisfacción", val: m.sat===null? na : nf1.format(m.sat), uni: m.sat===null?"":"/10",
+     ctx:"Promedio simple de la escala 1–10", tono:"neutro"}
+  ];
+  document.getElementById("kpis").innerHTML = k.map(function(x){
+    return '<div class="kpi '+x.tono+'"><p class="lbl">'+x.lbl+'</p><p class="val">'+x.val+
+      (x.uni?' <span class="uni">'+x.uni+'</span>':'')+'</p><p class="ctx">'+x.ctx+'</p></div>';
+  }).join("");
+}
+
+/* ---------- Gráficas SVG ---------- */
+function svgVacio(el, msg){
+  el.innerHTML = '<div class="vacio" role="status">'+msg+'</div>';
+}
+
+function barrasVerticales(el, datos, opts){
+  if(!datos.length){ return svgVacio(el, "Sin datos para graficar con los filtros activos."); }
+  var W=520, H=250, ml=44, mr=14, mt=16, mb=46;
+  var iw=W-ml-mr, ih=H-mt-mb;
+  var maxV = Math.max(100, opts.max||0);
+  var bw = Math.min(90, iw/datos.length*0.6);
+  var s = ['<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(opts.aria)+'">'];
+  [0,25,50,75,100].forEach(function(t){
+    var y = mt+ih-(t/maxV)*ih;
+    s.push('<line x1="'+ml+'" y1="'+y+'" x2="'+(W-mr)+'" y2="'+y+'" stroke="#e8edf1"/>');
+    s.push('<text class="g-txt" x="'+(ml-6)+'" y="'+(y+4)+'" text-anchor="end">'+t+'%</text>');
+  });
+  var ym = mt+ih-(META_SLA/maxV)*ih;
+  s.push('<line x1="'+ml+'" y1="'+ym+'" x2="'+(W-mr)+'" y2="'+ym+'" stroke="'+C.verde+'" stroke-width="2" stroke-dasharray="6 4"/>');
+  s.push('<text class="g-val" x="'+(W-mr)+'" y="'+(ym-6)+'" text-anchor="end" fill="'+C.verde+'">Meta 90 %</text>');
+  datos.forEach(function(d,i){
+    var cx = ml + iw*(i+0.5)/datos.length;
+    var h = (d.val/maxV)*ih, y = mt+ih-h;
+    var col = d.val>=META_SLA ? C.azul : C.naranja;
+    s.push('<rect x="'+(cx-bw/2)+'" y="'+y+'" width="'+bw+'" height="'+Math.max(h,0)+'" fill="'+col+'"><title>'+esc(d.cat)+': '+nf1.format(d.val)+' % ('+d.sub+')</title></rect>');
+    s.push('<text class="g-val" x="'+cx+'" y="'+(y-6)+'" text-anchor="middle">'+nf1.format(d.val)+'%</text>');
+    s.push('<text class="g-cat" x="'+cx+'" y="'+(mt+ih+17)+'" text-anchor="middle">'+esc(d.cat)+'</text>');
+    s.push('<text class="g-txt" x="'+cx+'" y="'+(mt+ih+31)+'" text-anchor="middle">'+d.sub+'</text>');
+  });
+  s.push('<line x1="'+ml+'" y1="'+(mt+ih)+'" x2="'+(W-mr)+'" y2="'+(mt+ih)+'" stroke="#b9c4cd"/>');
+  s.push('</svg>');
+  el.innerHTML = s.join("");
+}
+
+function barrasHorizontales(el, datos, opts){
+  if(!datos.length){ return svgVacio(el, opts.vacio||"Sin datos para graficar con los filtros activos."); }
+  var W=520, ml=opts.ml||118, mr=74, mt=8, fila=26;
+  var H = mt + datos.length*fila + 26;
+  var iw = W-ml-mr;
+  var maxV = Math.max.apply(null, datos.map(function(d){return d.val;}));
+  if(opts.pct) maxV = 100;
+  if(maxV<=0) maxV = 1;
+  var s = ['<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(opts.aria)+'">'];
+  if(opts.pct){
+    var xm = ml + (META_SLA/maxV)*iw;
+    s.push('<line x1="'+xm+'" y1="'+mt+'" x2="'+xm+'" y2="'+(mt+datos.length*fila)+'" stroke="'+C.verde+'" stroke-width="2" stroke-dasharray="6 4"/>');
+    s.push('<text class="g-val" x="'+xm+'" y="'+(mt+datos.length*fila+16)+'" text-anchor="middle" fill="'+C.verde+'">Meta 90 %</text>');
+  }
+  datos.forEach(function(d,i){
+    var y = mt + i*fila + 4, h = fila-11;
+    var w = Math.max((d.val/maxV)*iw, d.val>0?2:0);
+    var col = opts.pct ? (d.val>=META_SLA?C.azul:C.naranja) : (opts.color||C.azul);
+    s.push('<text class="g-cat" x="'+(ml-8)+'" y="'+(y+h-2)+'" text-anchor="end">'+esc(d.cat)+'</text>');
+    s.push('<rect x="'+ml+'" y="'+y+'" width="'+w+'" height="'+h+'" fill="'+col+'"><title>'+esc(d.cat)+': '+esc(opts.fmt(d.val))+(d.sub?' ('+d.sub+')':'')+'</title></rect>');
+    s.push('<text class="g-val" x="'+(ml+w+7)+'" y="'+(y+h-2)+'">'+esc(opts.fmt(d.val))+'</text>');
+  });
+  s.push('</svg>');
+  el.innerHTML = s.join("");
+}
+
+function agrupar(rows, campo){
+  var map = {};
+  rows.forEach(function(r){
+    var k = campo==="mes" ? mesDe(g(r,"fecha_salida")) : g(r,campo);
+    if(!map[k]) map[k]={n:0,cumple:0,recl:0};
+    map[k].n++;
+    if(g(r,"sla_entrega")==="Cumple") map[k].cumple++;
+    map[k].recl += g(r,"reclamacion_mxn");
+  });
+  return map;
+}
+
+/* ---------- Render ---------- */
+function render(){
+  var rows = filtrar();
+  var m = metricas(rows);
+  pintarKPIs(m);
+  document.getElementById("aviso-vacio").style.display = rows.length? "none":"block";
+
+  var act = DEFS.filter(function(d){return estado[d.k]!=="__todos__";})
+    .map(function(d){ var v=estado[d.k]; return d.lbl+": <b>"+esc(d.fmt?d.fmt(v):v)+"</b>"; });
+  document.getElementById("resumen-filtros").innerHTML =
+    (act.length? "Filtros activos — "+act.join(" · ") : "Sin filtros activos (vista completa)") +
+    " · <b>"+nf0.format(rows.length)+"</b> de 240 embarques.";
+
+  var gm = agrupar(rows,"mes");
+  var dm = Object.keys(gm).sort().map(function(k){
+    return {cat: MESES[k]||k, val: gm[k].cumple/gm[k].n*100, sub:"n="+gm[k].n};
+  });
+  barrasVerticales(document.getElementById("chart-mes"), dm, {aria:"Cumplimiento de SLA por mes contra la meta de 90 por ciento"});
+
+  var dimS = document.getElementById("dim-seg").value;
+  var gs = agrupar(rows,dimS);
+  var ds = Object.keys(gs).map(function(k){
+    return {cat:k, val: gs[k].cumple/gs[k].n*100, sub:"n="+gs[k].n};
+  }).sort(function(a,b){return a.val-b.val;});
+  barrasHorizontales(document.getElementById("chart-seg"), ds,
+    {pct:true, aria:"Cumplimiento de SLA por "+dimS, fmt:function(v){return nf1.format(v)+"%";}});
+
+  var gi = {};
+  rows.forEach(function(r){ var t=g(r,"tipo_incidente"); if(t!=="Sin incidente") gi[t]=(gi[t]||0)+1; });
+  var di = Object.keys(gi).map(function(k){return {cat:k,val:gi[k]};}).sort(function(a,b){return b.val-a.val;});
+  barrasHorizontales(document.getElementById("chart-inc"), di,
+    {color:C.rojo, aria:"Incidentes registrados por categoría", fmt:function(v){return nf0.format(v);},
+     vacio:"Ningún incidente registrado en la selección actual."});
+
+  var dimR = document.getElementById("dim-recl").value;
+  var gr = agrupar(rows,dimR);
+  var dr = Object.keys(gr).map(function(k){return {cat:k,val:gr[k].recl,sub:"n="+gr[k].n};})
+    .filter(function(d){return d.val>0;}).sort(function(a,b){return b.val-a.val;});
+  barrasHorizontales(document.getElementById("chart-recl"), dr,
+    {color:C.rosa, ml:132, mr:90, aria:"Reclamaciones acumuladas en pesos por "+dimR, fmt:mxn,
+     vacio:"Sin reclamaciones registradas en la selección actual."});
+
+  var maxPag = Math.max(0, Math.ceil(rows.length/PAG)-1);
+  if(pagina>maxPag) pagina = maxPag;
+  var slice = rows.slice(pagina*PAG,(pagina+1)*PAG);
+  document.getElementById("tbody").innerHTML = slice.length? slice.map(function(r){
+    var ok = g(r,"sla_entrega")==="Cumple";
+    return "<tr>"+
+      "<td>"+esc(g(r,"id_embarque"))+"</td>"+
+      "<td>"+esc(g(r,"fecha_salida"))+"</td>"+
+      "<td>"+esc(g(r,"origen"))+"</td>"+
+      "<td>"+esc(g(r,"destino"))+"</td>"+
+      "<td>"+esc(g(r,"producto"))+"</td>"+
+      "<td>"+esc(g(r,"transportista"))+"</td>"+
+      "<td>"+esc(g(r,"tipo_ruta"))+"</td>"+
+      '<td><span class="pill '+(ok?"si":"no")+'">'+esc(g(r,"sla_entrega"))+"</span></td>"+
+      '<td class="num">'+nf0.format(g(r,"retraso_min"))+"</td>"+
+      "<td>"+esc(g(r,"tipo_incidente"))+"</td>"+
+      '<td class="num">'+nf1.format(g(r,"temperatura_max_c"))+"</td>"+
+      '<td class="num">'+nf0.format(g(r,"reclamacion_mxn"))+"</td>"+
+      '<td class="num">'+nf0.format(g(r,"satisfaccion_1_10"))+"</td></tr>";
+  }).join("") : '<tr><td colspan="13" style="text-align:center;padding:20px;color:#8a3b00">Sin embarques que coincidan con los filtros seleccionados.</td></tr>';
+
+  document.getElementById("sub-tabla").textContent =
+    rows.length+" embarque(s) en la selección. Unidades: retraso en minutos, temperatura en °C, reclamación en MXN.";
+  document.getElementById("paginacion-info").textContent = rows.length?
+    ("Mostrando "+(pagina*PAG+1)+"–"+Math.min((pagina+1)*PAG,rows.length)+" de "+rows.length) : "Sin registros que mostrar";
+  document.getElementById("btn-menos").disabled = pagina<=0;
+  document.getElementById("btn-mas").disabled = pagina>=maxPag;
+
+  var peor = ds.length? ds[0] : null;
+  var topRecl = dr.length? dr[0] : null;
+  var h = [];
+  var txt = "<li>La selección contiene <strong>"+nf0.format(m.n)+" embarques</strong>";
+  if(m.n){
+    var rel = m.brecha>=0 ? "igual o por encima de la meta de 90 %."
+                          : (nf1.format(Math.abs(m.brecha))+" pp por debajo de la meta de 90 %.");
+    txt += " con un SLA de <strong>"+nf1.format(m.sla)+" %</strong>, "+rel;
+  } else { txt += "."; }
+  h.push(txt+"</li>");
+  if(m.tardios) h.push("<li><strong>"+m.tardios+"</strong> embarques no cumplieron, con un retraso promedio de <strong>"+nf1.format(m.retProm)+" min</strong> (promedio calculado sólo sobre tardíos).</li>");
+  else if(m.n) h.push("<li>Ningún embarque incumplió el SLA en la selección, por lo que el retraso promedio de tardíos no está definido.</li>");
+  if(m.n) h.push("<li>Se registraron <strong>"+m.inc+"</strong> incidentes y <strong>"+m.exc+"</strong> excursiones &gt; 8 °C. Ambas cifras son conteos de registro, no diagnósticos de causa.</li>");
+  if(peor) h.push("<li>Por "+esc(document.getElementById("dim-seg").selectedOptions[0].text.toLowerCase())+", el menor cumplimiento es <strong>"+esc(peor.cat)+"</strong> con "+nf1.format(peor.val)+" % ("+peor.sub+"). Diferencia observada, no atribuible a una causa.</li>");
+  if(topRecl) h.push("<li>La mayor reclamación acumulada corresponde a <strong>"+esc(topRecl.cat)+"</strong> con "+mxn(topRecl.val)+" de un total de "+mxn(m.recl)+".</li>");
+  document.getElementById("lista-hechos").innerHTML = h.join("");
+}
+
+document.getElementById("pie-fecha").textContent =
+  "Tablero generado el 3 de septiembre de 2026 · última actualización de datos: 28 de junio de 2026 (fin del periodo) · sin dependencias externas ni recursos remotos.";
+
+render();
+})();
+</script>
+</body>
+</html>
