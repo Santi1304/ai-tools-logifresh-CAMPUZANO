@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tokens de skill-tokenizador</title>
+<style>
+:root {
+  --fondo: #0A0817;
+  --panel: #13102A;
+  --panel-2: #1A1636;
+  --linea: #2B2650;
+  --linea-fuerte: #3E3872;
+  --texto: #EEEBFF;
+  --texto-suave: #B4AEDD;
+  --texto-tenue: #8C86B8;
+  --neon-1: #2EE6FF;
+  --atencion: #FF3D7F;
+  --exito: #7CFFB2;
+  --advertencia: #FFB938;
+  --cat-1: #2EE6FF;
+  --cat-2: #FF3D7F;
+  --cat-3: #7CFFB2;
+  --cat-4: #FFB938;
+  --cat-5: #C77DFF;
+  --cat-6: #8C86B8;
+  --pista: #221E44;
+  --brillo: 1;
+  --letrero: color-mix(in srgb, var(--neon-1) 22%, #ffffff);
+  color-scheme: dark;
+}
+:root[data-tema="claro"] {
+  --fondo: #FFFFFF;
+  --panel: #FFFFFF;
+  --panel-2: #F6F5FB;
+  --linea: #E2E0EE;
+  --linea-fuerte: #C9C5DD;
+  --texto: #16132B;
+  --texto-suave: #4A4666;
+  --texto-tenue: #5E5A7A;
+  --neon-1: #0072B2;
+  --atencion: #D55E00;
+  --exito: #007A5A;
+  --advertencia: #16132B;
+  --cat-1: #0072B2;
+  --cat-2: #D55E00;
+  --cat-3: #009E73;
+  --cat-4: #E69F00;
+  --cat-5: #CC79A7;
+  --cat-6: #56B4E9;
+  --pista: #ECEAF5;
+  --brillo: 0;
+  --letrero: var(--neon-1);
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--fondo); color: var(--texto); font: 400 16px/1.55 "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", sans-serif; }
+.sitio { max-width: 1180px; margin: 0 auto; padding: 28px 16px 64px; }
+h1, h2, h3 { font-family: "Bahnschrift", "DIN Alternate", "Avenir Next Condensed", "Roboto Condensed", "Arial Narrow", system-ui, sans-serif; font-stretch: 85%; letter-spacing: .01em; }
+h2 { font-size: 1.3rem; line-height: 1.25; margin: 0 0 6px; font-weight: 600; }
+h3 { font-size: 1.02rem; margin: 18px 0 8px; font-weight: 600; }
+p { margin: 0 0 8px; }
+.suave { color: var(--texto-suave); }
+code, .ruta { font-family: ui-monospace, "Cascadia Code", "SF Mono", Menlo, Consolas, monospace; font-size: .86em; }
+a { color: var(--neon-1); }
+button, select, input { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--neon-1); outline-offset: 2px; }
+
+/* ---------- Encabezado */
+.barra-sup { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+.marca { margin: 0; color: var(--texto-suave); font-size: .95rem; }
+.marca strong { color: var(--texto); font-weight: 600; }
+.acciones { display: flex; flex-wrap: wrap; gap: 8px; }
+.btn { background: transparent; border: 1px solid var(--linea-fuerte); color: var(--texto); border-radius: 999px; padding: 6px 14px; cursor: pointer; font-size: .9rem; }
+.btn:hover { border-color: var(--neon-1); color: var(--neon-1); }
+
+/* ---------- Letrero neón (el único elemento con brillo, junto con el medidor) */
+.letrero { margin: 0 0 6px; font-family: "Bahnschrift", "DIN Alternate", "Avenir Next Condensed", "Roboto Condensed", "Arial Narrow", system-ui, sans-serif;
+  font-stretch: 75%; font-weight: 300; font-size: clamp(3.4rem, 13vw, 8.4rem); line-height: .95; letter-spacing: .02em; font-variant-numeric: tabular-nums;
+  color: var(--letrero);
+  text-shadow: 0 0 calc(2px * var(--brillo)) #fff, 0 0 calc(8px * var(--brillo)) var(--neon-1), 0 0 calc(22px * var(--brillo)) var(--neon-1), 0 0 calc(48px * var(--brillo)) color-mix(in srgb, var(--neon-1) 60%, transparent); }
+.letrero .unidad { font-size: .34em; font-weight: 400; margin-left: .25em; letter-spacing: .04em; }
+.encendido .letrero { animation: encender 1.3s steps(1, end) 1; }
+@keyframes encender { 0% { opacity: .15; } 8% { opacity: 1; } 12% { opacity: .3; } 20% { opacity: 1; } 24% { opacity: .55; } 30%, 100% { opacity: 1; } }
+.titular { font-size: clamp(1.05rem, 2.2vw, 1.3rem); max-width: 62ch; margin: 10px 0 22px; line-height: 1.45; }
+.meta { color: var(--texto-suave); font-size: .9rem; max-width: 80ch; }
+.delta { font-weight: 600; margin: 4px 0 0; }
+.bien { color: var(--exito); } .mal { color: var(--atencion); }
+
+/* ---------- Medidor de ventana de contexto */
+.medidor { position: relative; margin: 26px 0 30px; padding-bottom: 26px; }
+.m-tubo { height: 14px; border-radius: 999px; background: var(--pista); border: 1px solid var(--linea); overflow: hidden; }
+.m-relleno { display: block; height: 100%; width: var(--w); border-radius: 999px; background: var(--neon-1);
+  box-shadow: 0 0 calc(10px * var(--brillo)) var(--neon-1), 0 0 calc(24px * var(--brillo)) color-mix(in srgb, var(--neon-1) 55%, transparent); }
+.encendido .m-relleno { animation: llenar 1.1s cubic-bezier(.2,.7,.2,1) .25s both; }
+@keyframes llenar { from { width: 0; } }
+.m-marca { position: absolute; top: -4px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; }
+.m-tick { width: 2px; height: 22px; background: var(--linea-fuerte); }
+.m-marca.cabe .m-tick { background: var(--texto-suave); }
+.m-marca.bajo .m-tick { height: 38px; }
+.medidor { padding-bottom: 42px; }
+.m-etq { font-size: .78rem; color: var(--texto-suave); margin-top: 2px; font-variant-numeric: tabular-nums; }
+.m-pres { position: absolute; top: -10px; bottom: 18px; border-left: 2px dashed var(--atencion); }
+.m-pres-etq { position: absolute; top: -20px; left: 4px; white-space: nowrap; font-size: .78rem; color: var(--atencion); }
+.m-nota { margin: 0 0 10px; }
+.ventanas { list-style: none; display: flex; flex-wrap: wrap; gap: 6px 18px; padding: 0; margin: 0 0 8px; font-size: .88rem; color: var(--texto-suave); }
+.v-n { color: var(--texto); font-weight: 600; font-variant-numeric: tabular-nums; }
+.ok { color: var(--exito); } .no { color: var(--atencion); }
+
+/* ---------- Franja de datos */
+.franja { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); border-top: 1px solid var(--linea); border-bottom: 1px solid var(--linea); margin: 0 0 34px; }
+.dato { padding: 14px 16px 14px 0; }
+.dato + .dato { padding-left: 16px; border-left: 1px solid var(--linea); }
+.dato .v { display: block; font-family: "Bahnschrift", "DIN Alternate", "Roboto Condensed", system-ui, sans-serif; font-stretch: 85%; font-size: 1.9rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.dato .e { color: var(--texto-suave); font-size: .88rem; }
+
+/* ---------- Paneles */
+.rejilla { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr)); gap: 20px; margin-bottom: 20px; }
+.panel { background: var(--panel); border: 1px solid var(--linea); border-radius: 14px; padding: 20px 18px; margin-bottom: 20px; min-width: 0; }
+.rejilla > .panel { margin-bottom: 0; }
+.panel > .suave:first-of-type { font-size: .92rem; }
+
+/* Barras */
+.barras { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 9px; }
+.barra { display: grid; grid-template-columns: minmax(70px, 8.5rem) 1fr auto; align-items: center; gap: 10px; font-size: .9rem; }
+.b-etq { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: ui-monospace, "Cascadia Code", Menlo, Consolas, monospace; font-size: .86rem; }
+.b-pista { background: var(--pista); border-radius: 3px; height: 12px; overflow: hidden; }
+.b-relleno { display: block; height: 100%; width: var(--w); background: var(--neon-1); border-radius: 3px; min-width: 2px; }
+.otros .b-relleno { background: var(--texto-tenue); }
+.b-val { font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; min-width: 7.5rem; }
+
+/* Categorías */
+.apilada { display: flex; height: 26px; border-radius: 6px; overflow: hidden; margin: 16px 0 14px; gap: 2px; background: var(--fondo); }
+.seg { flex: 0 0 var(--w); background: var(--c); min-width: 3px; }
+.leyenda { list-style: none; padding: 0; margin: 0; display: grid; gap: 7px; }
+.leyenda li { display: grid; grid-template-columns: 14px 1fr auto; gap: 10px; align-items: center; font-size: .92rem; }
+.mu { width: 14px; height: 14px; border-radius: 3px; background: var(--c); }
+.ley-v { font-variant-numeric: tabular-nums; text-align: right; }
+
+/* Pareto y evolución */
+svg { display: block; width: 100%; height: auto; overflow: visible; }
+svg.evolucion { max-width: 760px; }
+svg .rej { stroke: var(--linea); stroke-width: 1; }
+svg .eje { fill: var(--texto-suave); font-size: 11.5px; font-family: inherit; }
+svg .uniforme { stroke: var(--texto-tenue); stroke-dasharray: 4 4; stroke-width: 1.2; }
+svg .area { fill: color-mix(in srgb, var(--neon-1) 14%, transparent); }
+svg .curva { fill: none; stroke: var(--neon-1); stroke-width: 2.5; stroke-linejoin: round; }
+svg .ref80 { stroke: var(--advertencia); stroke-dasharray: 3 3; stroke-width: 1.3; }
+svg .punto { fill: var(--fondo); stroke: var(--neon-1); stroke-width: 2.5; }
+svg .anot { fill: var(--texto); font-size: 12.5px; font-weight: 600; }
+.cifras-conc { display: flex; flex-wrap: wrap; gap: 6px 22px; margin-top: 10px; font-size: .92rem; }
+.cifras-conc strong { font-variant-numeric: tabular-nums; }
+
+/* Mapa de árbol */
+.treemap { position: relative; width: 100%; aspect-ratio: 16 / 9; margin: 14px 0 12px; border-radius: 8px; overflow: hidden; background: var(--fondo); }
+.tm-padre, .tm-hijo, .tm-rot { position: absolute; }
+.tm-padre { background: color-mix(in srgb, var(--c) 78%, var(--fondo)); border: 2px solid var(--fondo); }
+.tm-hijo { border: 1px solid color-mix(in srgb, var(--fondo) 55%, transparent); }
+.tm-sub { position: absolute; left: 5px; bottom: 4px; font-size: .72rem; padding: 0 5px; border-radius: 4px; background: color-mix(in srgb, var(--panel) 82%, transparent); color: var(--texto); max-width: calc(100% - 10px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tm-rot { pointer-events: none; }
+.tm-etq { position: absolute; left: 6px; top: 6px; font-size: .82rem; padding: 2px 7px; border-radius: 5px; background: var(--panel); color: var(--texto); max-width: calc(100% - 12px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lista-carp { list-style: none; padding: 0; margin: 0; columns: 2 220px; font-size: .9rem; }
+.lista-carp li { display: flex; justify-content: space-between; gap: 10px; padding: 3px 0; break-inside: avoid; border-bottom: 1px dotted var(--linea); }
+.lista-carp .mu { display: inline-block; vertical-align: -2px; margin-right: 6px; }
+
+/* Tabla */
+.controles { display: flex; flex-wrap: wrap; gap: 12px; margin: 14px 0; align-items: end; }
+.controles label { display: grid; gap: 4px; font-size: .84rem; color: var(--texto-suave); }
+.controles input, .controles select { background: var(--panel-2); border: 1px solid var(--linea-fuerte); border-radius: 8px; padding: 7px 10px; color: var(--texto); min-width: 0; }
+.controles input { width: min(300px, 100%); }
+.tecla { font-size: .78rem; border: 1px solid var(--linea-fuerte); border-radius: 4px; padding: 0 5px; margin-left: 4px; }
+.tabla-env { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid var(--linea); vertical-align: top; }
+th { color: var(--texto-suave); font-weight: 600; white-space: nowrap; }
+th button { background: none; border: 0; padding: 0; font-weight: 600; color: inherit; cursor: pointer; }
+th[aria-sort="ascending"] button, th[aria-sort="descending"] button { color: var(--neon-1); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+td.ruta { word-break: break-all; }
+tbody tr:hover { background: var(--panel-2); }
+.pct-celda { position: relative; }
+.pct-barra { position: absolute; right: 8px; bottom: 4px; height: 3px; width: calc(var(--w) * .9); max-width: 90%; background: var(--neon-1); opacity: .7; border-radius: 2px; }
+.insignia { display: inline-block; margin: 2px 0 0 6px; padding: 0 7px; border: 1px solid currentColor; border-radius: 999px; font-size: .74rem; white-space: nowrap; font-family: inherit; }
+.i-pesado { color: var(--atencion); } .i-dup, .i-min { color: var(--advertencia); }
+
+/* Recomendaciones */
+.recs { list-style: none; padding: 0; margin: 14px 0 0; display: grid; gap: 0; }
+.rec { display: grid; grid-template-columns: 5.5rem 1fr; gap: 14px; padding: 14px 0; border-top: 1px solid var(--linea); }
+.rec:first-child { border-top: 0; }
+.rec h3 { margin: 0 0 4px; }
+.rec p { margin: 0 0 4px; }
+.prio { font-size: .84rem; font-weight: 600; }
+.p-alta .prio { color: var(--atencion); } .p-media .prio { color: var(--neon-1); } .p-baja .prio, .p-info .prio { color: var(--texto-suave); }
+
+/* Varios */
+.alerta-lista { margin: 8px 0 0; padding-left: 20px; font-size: .92rem; }
+.alerta-lista li { margin-bottom: 6px; }
+details { margin: 8px 0; } summary { cursor: pointer; font-weight: 600; }
+.lista-excl { font-size: .88rem; max-height: 280px; overflow: auto; }
+.aviso { border-left: 3px solid var(--advertencia); padding: 8px 12px; background: var(--panel-2); border-radius: 0 8px 8px 0; }
+footer { font-size: .86rem; color: var(--texto-suave); border-top: 1px solid var(--linea); padding-top: 18px; margin-top: 8px; }
+.estado { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--panel-2); border: 1px solid var(--neon-1); color: var(--texto); padding: 8px 16px; border-radius: 999px; opacity: 0; transition: opacity .2s; pointer-events: none; }
+.estado.ver { opacity: 1; }
+.sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+@media (max-width: 600px) {
+  .barra { grid-template-columns: 1fr auto; }
+  .b-pista { grid-column: 1 / -1; grid-row: 2; }
+  .b-val { min-width: 0; }
+  .dato + .dato { border-left: 0; padding-left: 0; }
+  .dato { border-top: 1px solid var(--linea); }
+  .rec { grid-template-columns: 1fr; gap: 4px; }
+  #tabla th:nth-child(3), #tabla td:nth-child(3), #tabla th:nth-child(7), #tabla td:nth-child(7), #tabla th:nth-child(8), #tabla td:nth-child(8) { display: none; }
+  .m-etq { font-size: .7rem; }
+}
+@media (prefers-reduced-motion: reduce) { .encendido .letrero, .encendido .m-relleno { animation: none; } .estado { transition: none; } }
+@media print {
+  :root { --fondo: #FFFFFF; --panel: #FFFFFF; --panel-2: #F6F5FB; --linea: #E2E0EE; --linea-fuerte: #C9C5DD; --texto: #16132B; --texto-suave: #4A4666; --texto-tenue: #5E5A7A; --neon-1: #0072B2; --atencion: #D55E00; --exito: #007A5A; --advertencia: #16132B; --cat-1: #0072B2; --cat-2: #D55E00; --cat-3: #009E73; --cat-4: #E69F00; --cat-5: #CC79A7; --cat-6: #56B4E9; --pista: #ECEAF5; --brillo: 0; --letrero: var(--neon-1); }
+  .acciones, .controles, .estado { display: none !important; }
+  .panel { break-inside: avoid; }
+  body { background: #fff; }
+}
+</style>
+</head>
+<body>
+<div class="sitio">
+<header class="barra-sup">
+  <p class="marca"><strong>skill-tokenizador</strong>, análisis completo del 2026-10-16 a las 12:16</p>
+  <div class="acciones" role="toolbar" aria-label="Acciones del reporte">
+    <button class="btn" id="b-copiar" type="button">Copiar resumen</button>
+    <button class="btn" id="b-csv" type="button">Descargar CSV</button>
+    <button class="btn" id="b-json" type="button">Descargar JSON</button>
+    <button class="btn" id="b-tema" type="button" aria-label="Cambiar tema de color">Tema</button>
+  </div>
+</header>
+
+<main>
+<section aria-labelledby="t-total">
+  <h1 id="t-total" class="letrero">43,335<span class="unidad">tokens</span></h1>
+  
+  <p class="titular">El 40% de los archivos (6) acumula el 80% de los tokens; calculadora-promaster3000/ es la carpeta más pesada (84%).</p>
+  <div class="medidor" role="img" aria-label="Cabe en una ventana de 128K o más, donde ocupa el 33.9%."><div class="m-tubo"><span class="m-relleno" style="--w:49.59%"></span></div><span class="m-marca" style="left:27.36%"><span class="m-tick" aria-hidden="true"></span><span class="m-etq">8K</span></span><span class="m-marca" style="left:45.60%"><span class="m-tick" aria-hidden="true"></span><span class="m-etq">32K</span></span><span class="m-marca cabe" style="left:63.83%"><span class="m-tick" aria-hidden="true"></span><span class="m-etq">128K</span></span><span class="m-marca cabe bajo" style="left:69.71%"><span class="m-tick" aria-hidden="true"></span><span class="m-etq">200K</span></span><span class="m-marca cabe" style="left:90.88%"><span class="m-tick" aria-hidden="true"></span><span class="m-etq">1M</span></span></div><p class="m-nota">Cabe en una ventana de 128K o más, donde ocupa el 33.9%. <span class="suave">Escala logarítmica; ventanas de referencia, no de un modelo concreto.</span></p><ul class="ventanas"><li><span class="v-n">8K</span> <span class="no">✕ no cabe</span>, 5.42 veces</li><li><span class="v-n">32K</span> <span class="no">✕ no cabe</span>, 1.35 veces</li><li><span class="v-n">128K</span> <span class="ok">✓ cabe</span>, usa 33.9%</li><li><span class="v-n">200K</span> <span class="ok">✓ cabe</span>, usa 21.7%</li><li><span class="v-n">1M</span> <span class="ok">✓ cabe</span>, usa 4.3%</li></ul>
+  <p class="meta">Método de conteo: estimación caracteres/4 (regla de tokeniza-ia, no es conteo exacto).</p>
+</section>
+
+<div class="franja" role="list" aria-label="Cifras del análisis">
+  <div class="dato" role="listitem"><span class="v">15</span><span class="e">archivos analizados, 169 KB de texto</span></div>
+  <div class="dato" role="listitem"><span class="v">0</span><span class="e">archivos excluidos por las reglas</span></div>
+  <div class="dato" role="listitem"><span class="v">3</span><span class="e">lenguajes: Python, Markdown, JSON</span></div>
+  <div class="dato" role="listitem"><span class="v">2,889</span><span class="e">tokens por archivo en promedio</span></div>
+</div>
+
+<div class="rejilla">
+  <section class="panel" aria-labelledby="t-conc"><h2 id="t-conc">6 de 15 archivos (40.0%) suman el 80% de los tokens</h2>
+    <p class="suave">Porcentaje acumulado de tokens al sumar los archivos de mayor a menor. Cuanto más se curva hacia arriba, más concentrado está el consumo.</p>
+    <svg viewBox="0 0 420 250" class="pareto" role="img" aria-labelledby="t-conc d-conc"><desc id="d-conc">Curva acumulada: eje horizontal, porcentaje de archivos ordenados de mayor a menor; eje vertical, porcentaje de tokens acumulado. 2 archivos suman el 50% y 6 el 80%.</desc><line x1="44" x2="406" y1="216.0" y2="216.0" class="rej"/><text x="38" y="220.0" class="eje" text-anchor="end">0%</text><line x1="44" x2="406" y1="165.0" y2="165.0" class="rej"/><text x="38" y="169.0" class="eje" text-anchor="end">25%</text><line x1="44" x2="406" y1="114.0" y2="114.0" class="rej"/><text x="38" y="118.0" class="eje" text-anchor="end">50%</text><line x1="44" x2="406" y1="63.0" y2="63.0" class="rej"/><text x="38" y="67.0" class="eje" text-anchor="end">75%</text><line x1="44" x2="406" y1="12.0" y2="12.0" class="rej"/><text x="38" y="16.0" class="eje" text-anchor="end">100%</text><text x="44.0" y="238" class="eje" text-anchor="middle">0%</text><text x="134.5" y="238" class="eje" text-anchor="middle">25%</text><text x="225.0" y="238" class="eje" text-anchor="middle">50%</text><text x="315.5" y="238" class="eje" text-anchor="middle">75%</text><text x="406.0" y="238" class="eje" text-anchor="middle">100%</text><line x1="44.0" y1="216.0" x2="406.0" y2="12.0" class="uniforme"/><text x="355.3" y="55.6" class="eje" text-anchor="middle" transform="rotate(-29.4 355.3 55.6)">reparto uniforme</text><path d="M44.0,216.0 L68.1,144.0 L92.3,94.6 L116.4,78.8 L140.5,65.4 L164.7,55.4 L188.8,45.4 L212.9,39.5 L237.1,33.7 L261.2,29.0 L285.3,24.4 L309.5,20.9 L333.6,18.2 L357.7,16.1 L381.9,14.0 L406.0,12.0 L406.0,216.0 L44.0,216.0 Z" class="area"/><path d="M44.0,216.0 L68.1,144.0 L92.3,94.6 L116.4,78.8 L140.5,65.4 L164.7,55.4 L188.8,45.4 L212.9,39.5 L237.1,33.7 L261.2,29.0 L285.3,24.4 L309.5,20.9 L333.6,18.2 L357.7,16.1 L381.9,14.0 L406.0,12.0" class="curva"/><line x1="44.0" x2="188.8" y1="52.8" y2="52.8" class="ref80"/><line x1="188.8" x2="188.8" y1="52.8" y2="216.0" class="ref80"/><circle cx="188.8" cy="52.8" r="4.5" class="punto"/><text x="196.8" y="70.8" class="anot">6 archivos = 80%</text><text x="225.0" y="249" class="eje" text-anchor="middle">archivos (de más a menos pesado)</text></svg>
+    <p class="cifras-conc"><span><strong>2</strong> archivos suman el 50%</span><span><strong>6</strong> suman el 80%</span><span>Top 20: <strong>100%</strong> del total</span></p>
+  </section>
+  <section class="panel" aria-labelledby="t-cat"><h2 id="t-cat">Código ocupa el 81% del contexto</h2>
+    <p class="suave">Reparto del contexto por tipo de archivo.</p>
+    <div class="apilada" aria-hidden="true"><span class="seg" style="--w:80.660%;--c:var(--cat-1)" title="Código: 34,952 tokens (80.7%)"></span><span class="seg" style="--w:15.020%;--c:var(--cat-4)" title="Documentación: 6,511 tokens (15.0%)"></span><span class="seg" style="--w:4.320%;--c:var(--cat-6)" title="Configuración: 1,872 tokens (4.3%)"></span></div><ul class="leyenda"><li><span class="mu" style="--c:var(--cat-1)" aria-hidden="true"></span><span class="ley-n">Código</span><span class="ley-v"><strong>80.7%</strong> <span class="suave">34,952 tokens, 7 archivos</span></span></li><li><span class="mu" style="--c:var(--cat-4)" aria-hidden="true"></span><span class="ley-n">Documentación</span><span class="ley-v"><strong>15.0%</strong> <span class="suave">6,511 tokens, 5 archivos</span></span></li><li><span class="mu" style="--c:var(--cat-6)" aria-hidden="true"></span><span class="ley-n">Configuración</span><span class="ley-v"><strong>4.3%</strong> <span class="suave">1,872 tokens, 3 archivos</span></span></li></ul>
+  </section>
+</div>
+
+<div class="rejilla">
+  <section class="panel" aria-labelledby="t-ext"><h2 id="t-ext">.py aporta el 81% de los tokens</h2><p class="suave">Tokens por extensión, de mayor a menor.</p>
+    <ol class="barras" aria-labelledby="t-ext">
+<li class="barra"><span class="b-etq" title=".py">.py</span><span class="b-pista" aria-hidden="true"><span class="b-relleno" style="--w:100.00%"></span></span><span class="b-val"><strong>34,952</strong> <span class="suave">80.7%</span></span><span class="sr">.py: 34,952 tokens, 80.7% del total, 7 archivos</span></li>
+<li class="barra"><span class="b-etq" title=".md">.md</span><span class="b-pista" aria-hidden="true"><span class="b-relleno" style="--w:18.63%"></span></span><span class="b-val"><strong>6,511</strong> <span class="suave">15.0%</span></span><span class="sr">.md: 6,511 tokens, 15.0% del total, 5 archivos</span></li>
+<li class="barra"><span class="b-etq" title=".json">.json</span><span class="b-pista" aria-hidden="true"><span class="b-relleno" style="--w:5.36%"></span></span><span class="b-val"><strong>1,872</strong> <span class="suave">4.3%</span></span><span class="sr">.json: 1,872 tokens, 4.3% del total, 3 archivos</span></li>
+</ol>
+  </section>
+  <section class="panel" aria-labelledby="t-carp"><h2 id="t-carp">calculadora-promaster3000/ concentra el 84% de los tokens</h2><p class="suave">Área proporcional a los tokens de cada carpeta y sus subcarpetas. Los valores exactos van en la lista.</p>
+    <div class="treemap" aria-hidden="true"><div class="tm-padre" style="--c:var(--cat-1);left:0.000%;top:0.000%;width:84.006%;height:100.000%" title="calculadora-promaster3000/: 36,404 tokens (84.0%)"></div><div class="tm-hijo" style="left:0.000%;top:0.000%;width:72.913%;height:100.000%" title="calculadora-promaster3000/scripts/: 31,597 tokens"><span class="tm-sub">scripts/</span></div><div class="tm-hijo" style="left:72.913%;top:0.000%;width:11.093%;height:70.335%" title="calculadora-promaster3000/: 3,381 tokens"></div><div class="tm-hijo" style="left:72.913%;top:70.335%;width:11.093%;height:20.741%" title="calculadora-promaster3000/config/: 997 tokens"></div><div class="tm-hijo" style="left:72.913%;top:91.076%;width:11.093%;height:8.924%" title="calculadora-promaster3000/assets/: 429 tokens"></div><div class="tm-rot" style="left:0.000%;top:0.000%;width:84.006%;height:100.000%"><span class="tm-etq"><strong>calculadora-promaster3000/</strong> 84%</span></div><div class="tm-padre" style="--c:var(--cat-3);left:84.006%;top:0.000%;width:15.994%;height:100.000%" title="tokeniza-ia/: 6,931 tokens (16.0%)"></div><div class="tm-hijo" style="left:84.006%;top:0.000%;width:15.994%;height:48.406%" title="tokeniza-ia/scripts/: 3,355 tokens"><span class="tm-sub">scripts/</span></div><div class="tm-hijo" style="left:84.006%;top:48.406%;width:15.994%;height:30.501%" title="tokeniza-ia/: 2,114 tokens"><span class="tm-sub">archivos directos en tokeniza-ia/</span></div><div class="tm-hijo" style="left:84.006%;top:78.906%;width:11.115%;height:21.094%" title="tokeniza-ia/references/: 1,016 tokens"></div><div class="tm-hijo" style="left:95.121%;top:78.906%;width:4.879%;height:21.094%" title="tokeniza-ia/assets/: 446 tokens"></div><div class="tm-rot" style="left:84.006%;top:0.000%;width:15.994%;height:100.000%"><span class="tm-etq"><strong>tokeniza-ia/</strong> 16%</span></div></div>
+    <ul class="lista-carp"><li><span><span class="mu" style="--c:var(--cat-1)" aria-hidden="true"></span>calculadora-promaster3000/</span><span><strong>36,404</strong> <span class="suave">84.0%</span></span></li><li><span><span class="mu" style="--c:var(--cat-3)" aria-hidden="true"></span>tokeniza-ia/</span><span><strong>6,931</strong> <span class="suave">16.0%</span></span></li></ul>
+  </section>
+</div>
+
+
+
+
+<section class="panel" aria-labelledby="t-arch">
+  <h2 id="t-arch">Los 15 archivos analizados, de más a menos costoso</h2>
+  <p class="suave">Ordena con los encabezados. Las insignias marcan archivos pesados (≥ 5% del total y ≥ 5,000 tokens), duplicados o posiblemente minificados.</p>
+  <div class="controles">
+    <label>Buscar archivo<input id="f-buscar" type="search" placeholder="ruta o nombre (tecla /)"></label>
+    <label>Categoría<select id="f-cat"><option value="">Todas</option></select></label>
+    <label>Extensión<select id="f-ext"><option value="">Todas</option></select></label>
+    <label>Carpeta<select id="f-carp"><option value="">Todas</option></select></label>
+    <label>Mostrar<select id="f-lim"><option value="20">Top 20</option><option value="50">50</option><option value="100">100</option><option value="0">Todos</option></select></label>
+  </div>
+  <p id="t-estado" class="suave" aria-live="polite"></p>
+  <div class="tabla-env">
+    <table id="tabla">
+      <caption class="sr">Archivos analizados con sus tokens</caption>
+      <thead><tr>
+        <th scope="col" class="num">#</th>
+        <th scope="col" aria-sort="none"><button type="button" data-k="ruta">Archivo</button></th>
+        <th scope="col" aria-sort="none"><button type="button" data-k="categoria">Categoría</button></th>
+        <th scope="col" aria-sort="none"><button type="button" data-k="ext">Ext.</button></th>
+        <th scope="col" class="num" aria-sort="descending"><button type="button" data-k="tokens">Tokens ▼</button></th>
+        <th scope="col" class="num" aria-sort="none"><button type="button" data-k="pct">% total</button></th>
+        <th scope="col" class="num" aria-sort="none"><button type="button" data-k="lineas">Líneas</button></th>
+        <th scope="col" class="num" aria-sort="none"><button type="button" data-k="bytes">Tamaño</button></th>
+      </tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</section>
+
+
+
+<section class="panel" aria-labelledby="t-rec"><h2 id="t-rec">1 acción de prioridad alta para reducir tokens</h2><ul class="recs"><li class="rec p-alta"><span class="prio"><span aria-hidden="true">▲</span> Alta</span><div><h3>Archivos individuales muy pesados</h3><p>Divide estos archivos, compártelos por secciones o resume su contenido antes de incluirlos en el contexto.</p><p class="suave">Evidencia: 2 archivo(s) con ≥ 5% del total y ≥ 5,000 tokens: calculadora-promaster3000/scripts/generar_reporte.py (35.3%), calculadora-promaster3000/scripts/analizar_proyecto.py (24.2%)</p></div></li><li class="rec p-media"><span class="prio"><span aria-hidden="true">●</span> Media</span><div><h3>Una carpeta domina el proyecto</h3><p>Acota las sesiones de trabajo a &#x27;calculadora-promaster3000/&#x27; o a sus subcarpetas en lugar de cargar todo el proyecto.</p><p class="suave">Evidencia: calculadora-promaster3000/ = 84.0% del total</p></div></li></ul></section>
+
+<section class="panel" aria-labelledby="t-costos"><h2 id="t-costos">Enviar todo el proyecto cuesta hasta US$0.2167 por llamada</h2><p class="suave">Calculado con tokeniza-ia: proyecto completo como entrada, una vez, sin salida. Tarifas de https://gptforwork.com/tools/openai-chatgpt-api-pricing-calculator del 2026-10-09; reconsúltalas antes de decidir.</p><div class="tabla-env"><table><thead><tr><th scope="col">Modelo</th><th scope="col">Proveedor</th><th scope="col" class="num">Por llamada</th><th scope="col" class="num">10 llamadas</th><th scope="col" class="num">100 llamadas</th></tr></thead><tbody><tr><td>gpt-5.6-sol</td><td>OpenAI</td><td class='num'>US$0.216675</td><td class='num'>US$2.17</td><td class='num'>US$21.67</td></tr><tr><td>claude-opus-5</td><td>Anthropic</td><td class='num'>US$0.216675</td><td class='num'>US$2.17</td><td class='num'>US$21.67</td></tr><tr><td>gemini-2.5-pro</td><td>Google</td><td class='num'>US$0.054169</td><td class='num'>US$0.54</td><td class='num'>US$5.42</td></tr></tbody></table></div></section>
+
+<section class="panel" aria-labelledby="t-excl">
+  <h2 id="t-excl">0 archivos quedaron fuera del conteo</h2>
+  <div class="tabla-env"><table><thead><tr><th scope="col">Categoría</th><th scope="col">Regla</th><th scope="col" class="num">Excluidos</th></tr></thead><tbody><tr><td>Carpetas pesadas y dependencias</td><td>Carpetas de dependencias, builds y caches: node_modules, .git, dist, build, .venv, venv, env, __pycache__, .next, .nuxt, .svelte-kit, .output, …</td><td class="num">0</td></tr><tr><td>Ignorados por .gitignore</td><td>Archivos ignorados por .gitignore (método: intérprete .gitignore propio)</td><td class="num">0</td></tr><tr><td>Posibles secretos (no leídos)</td><td>Posibles secretos (nunca se leen): .env, .env.*, *.pem, *.key, *.p12, *.pfx, *.jks, *.keystore, id_rsa*, id_ed25519*, … (se permiten .env.example, .env.sample, .env.template)</td><td class="num">0</td></tr><tr><td>Generados o derivados</td><td>Generados/derivados: *.min.js, *.min.css, *.map, *.pyc, *.pyo, *.class, …</td><td class="num">0</td></tr><tr><td>Binarios</td><td>Binarios por extensión o por byte nulo en los primeros 8 KB</td><td class="num">0</td></tr><tr><td>Ambiguos (confirmar)</td><td>Lockfiles (package-lock.json, yarn.lock, pnpm-lock.yaml, poetry.lock, …), carpetas .idea, .vscode, .github, datos (.csv, .tsv, .jsonl, .ndjson, .sql…) &gt; 100 KB y texto &gt; 1 MB <strong>(excluidos por defecto (confirmar))</strong></td><td class="num">0</td></tr></tbody></table></div>
+  
+</section>
+
+<section class="panel" aria-labelledby="t-adv">
+  <h2 id="t-adv">Advertencias</h2>
+  <ul><li>[Supuesto] Tokens estimados con estimación caracteres/4 (regla de tokeniza-ia, no es conteo exacto). Para conteo exacto instala tiktoken (pip install tiktoken) o usa el tokenizer oficial.</li><li>[Supuesto] gpt-5.6-sol: tokens no medidos con el tokenizer de OpenAI; el conteo real puede variar. Verificar con la API del proveedor (count_tokens / countTokens).</li><li>[Supuesto] claude-opus-5: tokens no medidos con el tokenizer de Anthropic; el conteo real puede variar. Verificar con la API del proveedor (count_tokens / countTokens).</li><li>[Supuesto] gemini-2.5-pro: tokens no medidos con el tokenizer de Google; el conteo real puede variar. Verificar con la API del proveedor (count_tokens / countTokens).</li><li>[Límite] Los tokens miden tamaño de contexto, no calidad ni relevancia del código.</li><li>[Límite] Claude, Gemini y otros proveedores tokenizan distinto; el conteo es una referencia.</li></ul>
+</section>
+</main>
+
+<footer>
+  <p>Fuente: archivos del proyecto «skill-tokenizador». Método: estimación caracteres/4 (regla de tokeniza-ia, no es conteo exacto). Fecha de corte: 2026-10-16T12:16:56-06:00.</p>
+  <p>Skills usadas: tokeniza-ia (tokeniza-ia) y vizdata (vizdata). Paleta: tema neón (paleta validada con vizdata).</p>
+  <p>Generado por calculadora-promaster3000 v2.0.0. No se modificó ningún archivo del proyecto. Todos los datos viajan dentro de este archivo.</p>
+</footer>
+</div>
+<div id="estado" class="estado" role="status" aria-live="polite"></div>
+<pre id="resumen-texto" hidden>**skill-tokenizador**: 43,335 tokens (modo completo, 2026-10-16 12:16)
+- Método: estimación caracteres/4 (regla de tokeniza-ia, no es conteo exacto)
+- Archivos analizados: 15; excluidos: 0; lenguajes: 3
+- Ventana de contexto: Cabe en una ventana de 128K o más, donde ocupa el 33.9%.
+- Concentración: 6 de 15 archivos (40.0%) suman el 80% de los tokens
+- Extensiones principales: .py 80.7%, .md 15.0%, .json 4.3%
+- Categorías: Código 80.7%, Documentación 15.0%, Configuración 4.3%
+- Carpetas principales: calculadora-promaster3000/ 84.0%, tokeniza-ia/ 16.0%
+- Archivos más costosos: calculadora-promaster3000/scripts/generar_reporte.py (15,301), calculadora-promaster3000/scripts/analizar_proyecto.py (10,483), tokeniza-ia/scripts/tokeniza_ia.py (3,355), calculadora-promaster3000/scripts/paleta.py (2,855), calculadora-promaster3000/SKILL.md (2,131)
+- Costo de enviar todo el proyecto una vez (tokeniza-ia, tarifas del 2026-10-09): gpt-5.6-sol US$0.2167, claude-opus-5 US$0.2167, gemini-2.5-pro US$0.0542
+- Recomendaciones: Archivos individuales muy pesados: Divide estos archivos, compártelos por secciones o resume su contenido antes de incluirlos en el contexto. | Una carpeta domina el proyecto: Acota las sesiones de trabajo a &#x27;calculadora-promaster3000/&#x27; o a sus subcarpetas en lugar de cargar todo el proyecto.
+- Advertencias: 4 (ver reporte)</pre>
+<script type="application/json" id="datos-reporte">{"meta": {"proyecto": "skill-tokenizador", "fecha": "2026-10-16T12:16:56-06:00", "modo": "completo", "metodo_tokens": "estimación caracteres/4 (regla de tokeniza-ia, no es conteo exacto)", "tokens_exactos": false, "deteccion_raiz": "ruta indicada (--raiz-exacta)", "skills": {"tokeniza": "tokeniza-ia", "vizdata": "vizdata"}, "version": "2.0.0", "presupuesto": null, "tema": "neon"}, "totales": {"tokens": 43335, "analizados": 15, "excluidos": 0, "lenguajes": 3, "bytes": 174041}, "por_extension": [{"ext": ".py", "lenguaje": "Python", "tokens": 34952, "archivos": 7, "pct": 80.66}, {"ext": ".md", "lenguaje": "Markdown", "tokens": 6511, "archivos": 5, "pct": 15.02}, {"ext": ".json", "lenguaje": "JSON", "tokens": 1872, "archivos": 3, "pct": 4.32}], "por_carpeta": [{"carpeta": "calculadora-promaster3000/", "tokens": 36404, "archivos": 10, "pct": 84.01}, {"carpeta": "tokeniza-ia/", "tokens": 6931, "archivos": 5, "pct": 15.99}], "archivos": [{"ruta": "calculadora-promaster3000/scripts/generar_reporte.py", "ext": ".py", "lenguaje": "Python", "carpeta": "calculadora-promaster3000/", "categoria": "Código", "bytes": 61391, "tokens": 15301, "pct": 35.31, "lineas": 913, "duplicado": false, "minificado": false}, {"ruta": "calculadora-promaster3000/scripts/analizar_proyecto.py", "ext": ".py", "lenguaje": "Python", "carpeta": "calculadora-promaster3000/", "categoria": "Código", "bytes": 42051, "tokens": 10483, "pct": 24.19, "lineas": 769, "duplicado": false, "minificado": false}, {"ruta": "tokeniza-ia/scripts/tokeniza_ia.py", "ext": ".py", "lenguaje": "Python", "carpeta": "tokeniza-ia/", "categoria": "Código", "bytes": 13478, "tokens": 3355, "pct": 7.74, "lineas": 293, "duplicado": false, "minificado": false}, {"ruta": "calculadora-promaster3000/scripts/paleta.py", "ext": ".py", "lenguaje": "Python", "carpeta": "calculadora-promaster3000/", "categoria": "Código", "bytes": 11441, "tokens": 2855, "pct": 6.59, "lineas": 229, "duplicado": false, "minificado": false}, {"ruta": "calculadora-promaster3000/SKILL.md", "ext": ".md", "lenguaje": "Markdown", "carpeta": "calculadora-promaster3000/", "categoria": "Documentación", "bytes": 8640, "tokens": 2131, "pct": 4.92, "lineas": 117, "duplicado": false, "minificado": false}, {"ruta": "tokeniza-ia/SKILL.md", "ext": ".md", "lenguaje": "Markdown", "carpeta": "tokeniza-ia/", "categoria": "Documentación", "bytes": 8554, "tokens": 2114, "pct": 4.88, "lineas": 117, "duplicado": false, "minificado": false}, {"ruta": "calculadora-promaster3000/README.md", "ext": ".md", "lenguaje": "Markdown", "carpeta": "calculadora-promaster3000/", "categoria": "Documentación", "bytes": 5050, "tokens": 1250, "pct": 2.88, "lineas": 107, "duplicado": false, "minificado": false}, {"ruta": "calculadora-promaster3000/scripts/prueba_minima.py", "ext": ".py", "lenguaje": "Python", "carpeta": "calculadora-promaster3000/", "categoria": "Código", "bytes": 4972, "tokens": 1239, "pct": 2.86, "lineas": 94, "duplicado": false, "minificado": false}, {"ruta": "calculadora-promaster3000/config/config.json", "ext": ".json", "lenguaje": "JSON", "carpeta": "calculadora-promaster3000/", "categoria": "Configuración", "bytes": 3986, "tokens": 997, "pct": 2.3, "lineas": 222, "duplicado": false, "minificado": false}, {"ruta": "calculadora-promaster3000/scripts/localizar_skills.py", "ext": ".py", "lenguaje": "Python", "carpeta": "calculadora-promaster3000/", "categoria": "Código", "bytes": 3947, "tokens": 986, "pct": 2.28, "lineas": 109, "duplicado": false, "minificado": false}, {"ruta": "calculadora-promaster3000/scripts/instalar.py", "ext": ".py", "lenguaje": "Python", "carpeta": "calculadora-promaster3000/", "categoria": "Código", "bytes": 2941, "tokens": 733, "pct": 1.69, "lineas": 72, "duplicado": false, "minificado": false}, {"ruta": "tokeniza-ia/references/fuentes_y_tarifas.md", "ext": ".md", "lenguaje": "Markdown", "carpeta": "tokeniza-ia/", "categoria": "Documentación", "bytes": 2345, "tokens": 584, "pct": 1.35, "lineas": 44, "duplicado": false, "minificado": false}, {"ruta": "tokeniza-ia/assets/ejemplo_entrada.json", "ext": ".json", "lenguaje": "JSON", "carpeta": "tokeniza-ia/", "categoria": "Configuración", "bytes": 1781, "tokens": 446, "pct": 1.03, "lineas": 28, "duplicado": false, "minificado": false}, {"ruta": "tokeniza-ia/references/plantilla_salida.md", "ext": ".md", "lenguaje": "Markdown", "carpeta": "tokeniza-ia/", "categoria": "Documentación", "bytes": 1744, "tokens": 432, "pct": 1.0, "lineas": 46, "duplicado": false, "minificado": false}, {"ruta": "calculadora-promaster3000/assets/tema_neon.json", "ext": ".json", "lenguaje": "JSON", "carpeta": "calculadora-promaster3000/", "categoria": "Configuración", "bytes": 1720, "tokens": 429, "pct": 0.99, "lineas": 65, "duplicado": false, "minificado": false}], "por_categoria": [{"categoria": "Código", "tokens": 34952, "archivos": 7, "pct": 80.66}, {"categoria": "Documentación", "tokens": 6511, "archivos": 5, "pct": 15.02}, {"categoria": "Configuración", "tokens": 1872, "archivos": 3, "pct": 4.32}], "arbol": [{"carpeta": "calculadora-promaster3000/", "tokens": 36404, "hijos": [{"nombre": "calculadora-promaster3000/scripts/", "tokens": 31597}, {"nombre": "calculadora-promaster3000/", "tokens": 3381}, {"nombre": "calculadora-promaster3000/config/", "tokens": 997}, {"nombre": "calculadora-promaster3000/assets/", "tokens": 429}]}, {"carpeta": "tokeniza-ia/", "tokens": 6931, "hijos": [{"nombre": "tokeniza-ia/scripts/", "tokens": 3355}, {"nombre": "tokeniza-ia/", "tokens": 2114}, {"nombre": "tokeniza-ia/references/", "tokens": 1016}, {"nombre": "tokeniza-ia/assets/", "tokens": 446}]}], "concentracion": {"puntos": [{"x": 0, "y": 0}, {"x": 6.667, "y": 35.309}, {"x": 13.333, "y": 59.499}, {"x": 20.0, "y": 67.241}, {"x": 26.667, "y": 73.829}, {"x": 33.333, "y": 78.747}, {"x": 40.0, "y": 83.625}, {"x": 46.667, "y": 86.51}, {"x": 53.333, "y": 89.369}, {"x": 60.0, "y": 91.67}, {"x": 66.667, "y": 93.945}, {"x": 73.333, "y": 95.636}, {"x": 80.0, "y": 96.984}, {"x": 86.667, "y": 98.013}, {"x": 93.333, "y": 99.01}, {"x": 100.0, "y": 100.0}], "n50": 2, "n80": 6, "n": 15, "pct_archivos_50": 13.3, "pct_archivos_80": 40.0}, "ventanas": [{"ventana": 8000, "cabe": false, "uso_pct": 541.7, "veces": 5.42}, {"ventana": 32000, "cabe": false, "uso_pct": 135.4, "veces": 1.35}, {"ventana": 128000, "cabe": true, "uso_pct": 33.9, "veces": 0.34}, {"ventana": 200000, "cabe": true, "uso_pct": 21.7, "veces": 0.22}, {"ventana": 1000000, "cabe": true, "uso_pct": 4.3, "veces": 0.04}], "duplicados": [], "duplicados_desperdicio": 0, "minificados": [], "historial": [{"fecha": "2026-10-16T12:16:56-06:00", "tokens": 43335, "archivos": 15, "metodo": "estimación caracteres/4 (regla de tokeniza-ia, no es conteo exacto)"}], "excluidos": {}, "excluidos_conteo": {}, "reglas": [{"categoria": "carpetas_pesadas", "regla": "Carpetas de dependencias, builds y caches: node_modules, .git, dist, build, .venv, venv, env, __pycache__, .next, .nuxt, .svelte-kit, .output, …", "ambigua": false}, {"categoria": "gitignore", "regla": "Archivos ignorados por .gitignore (método: intérprete .gitignore propio)", "ambigua": false}, {"categoria": "secretos", "regla": "Posibles secretos (nunca se leen): .env, .env.*, *.pem, *.key, *.p12, *.pfx, *.jks, *.keystore, id_rsa*, id_ed25519*, … (se permiten .env.example, .env.sample, .env.template)", "ambigua": false}, {"categoria": "generados", "regla": "Generados/derivados: *.min.js, *.min.css, *.map, *.pyc, *.pyo, *.class, …", "ambigua": false}, {"categoria": "binarios", "regla": "Binarios por extensión o por byte nulo en los primeros 8 KB", "ambigua": false}, {"categoria": "ambiguos", "regla": "Lockfiles (package-lock.json, yarn.lock, pnpm-lock.yaml, poetry.lock, …), carpetas .idea, .vscode, .github, datos (.csv, .tsv, .jsonl, .ndjson, .sql…) > 100 KB y texto > 1 MB", "ambigua": true, "decision": "excluidos por defecto (confirmar)"}], "avisos": ["[Supuesto] Tokens estimados con estimación caracteres/4 (regla de tokeniza-ia, no es conteo exacto). Para conteo exacto instala tiktoken (pip install tiktoken) o usa el tokenizer oficial.", "[Supuesto] gpt-5.6-sol: tokens no medidos con el tokenizer de OpenAI; el conteo real puede variar. Verificar con la API del proveedor (count_tokens / countTokens).", "[Supuesto] claude-opus-5: tokens no medidos con el tokenizer de Anthropic; el conteo real puede variar. Verificar con la API del proveedor (count_tokens / countTokens).", "[Supuesto] gemini-2.5-pro: tokens no medidos con el tokenizer de Google; el conteo real puede variar. Verificar con la API del proveedor (count_tokens / countTokens)."], "costos": {"fecha": "2026-10-09", "fuente": "https://gptforwork.com/tools/openai-chatgpt-api-pricing-calculator", "filas": [{"modelo": "gpt-5.6-sol", "proveedor": "OpenAI", "precio_entrada_1M": "5.0", "costo_llamada": "0.216675", "costo_10": "2.166750", "costo_100": "21.667500"}, {"modelo": "claude-opus-5", "proveedor": "Anthropic", "precio_entrada_1M": "5.0", "costo_llamada": "0.216675", "costo_10": "2.166750", "costo_100": "21.667500"}, {"modelo": "gemini-2.5-pro", "proveedor": "Google", "precio_entrada_1M": "1.25", "costo_llamada": "0.05416875", "costo_10": "0.54168750", "costo_100": "5.41687500"}], "avisos": ["[Supuesto] gpt-5.6-sol: tokens no medidos con el tokenizer de OpenAI; el conteo real puede variar. Verificar con la API del proveedor (count_tokens / countTokens).", "[Supuesto] claude-opus-5: tokens no medidos con el tokenizer de Anthropic; el conteo real puede variar. Verificar con la API del proveedor (count_tokens / countTokens).", "[Supuesto] gemini-2.5-pro: tokens no medidos con el tokenizer de Google; el conteo real puede variar. Verificar con la API del proveedor (count_tokens / countTokens)."], "modelos_sin_tarifa": []}, "comparacion": null, "recomendaciones": [{"prioridad": "alta", "titulo": "Archivos individuales muy pesados", "accion": "Divide estos archivos, compártelos por secciones o resume su contenido antes de incluirlos en el contexto.", "evidencia": "2 archivo(s) con ≥ 5% del total y ≥ 5,000 tokens: calculadora-promaster3000/scripts/generar_reporte.py (35.3%), calculadora-promaster3000/scripts/analizar_proyecto.py (24.2%)"}, {"prioridad": "media", "titulo": "Una carpeta domina el proyecto", "accion": "Acota las sesiones de trabajo a 'calculadora-promaster3000/' o a sus subcarpetas en lugar de cargar todo el proyecto.", "evidencia": "calculadora-promaster3000/ = 84.0% del total"}], "paleta": {"tema": "neon", "origen": "tema neón (paleta validada con vizdata)", "archivo": null, "tokens": "vizdata/assets/tokens.css", "candidatos_proyecto": []}}</script>
+<script type="application/json" id="cfg-reporte">{"temas": ["neon", "claro"], "porDefecto": "neon", "nombres": {"neon": "neón", "claro": "claro"}, "umbral": 5, "minTok": 5000}</script>
+<script>
+(function () {
+  var D = JSON.parse(document.getElementById('datos-reporte').textContent);
+  var CFG = JSON.parse(document.getElementById('cfg-reporte').textContent);
+  var nf = new Intl.NumberFormat('es-MX');
+  var $ = function (id) { return document.getElementById(id); };
+  var filas = D.archivos.slice();
+  var orden = { k: 'tokens', asc: false };
+  var maxPct = filas.reduce(function (m, a) { return Math.max(m, a.pct); }, 0) || 1;
+  var anim = !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  if (anim) document.body.classList.add('encendido');
+
+  function aviso(txt) { var e = $('estado'); e.textContent = txt; e.classList.add('ver'); clearTimeout(aviso.t); aviso.t = setTimeout(function () { e.classList.remove('ver'); }, 1800); }
+  function llenar(sel, valores) { valores.forEach(function (v) { var o = document.createElement('option'); o.value = v; o.textContent = v; sel.appendChild(o); }); }
+  llenar($('f-ext'), D.por_extension.map(function (e) { return e.ext; }));
+  llenar($('f-carp'), D.por_carpeta.map(function (c) { return c.carpeta; }));
+  llenar($('f-cat'), (D.por_categoria || []).map(function (c) { return c.categoria; }));
+  function kb(b) { return b < 1024 ? b + ' B' : nf.format(Math.round(b / 102.4) / 10) + ' KB'; }
+  function insignia(txt, cls) { var s = document.createElement('span'); s.className = 'insignia ' + cls; s.textContent = txt; return s; }
+
+  function pintar() {
+    var q = $('f-buscar').value.trim().toLowerCase(), fe = $('f-ext').value, fc = $('f-carp').value, fg = $('f-cat').value;
+    var lim = parseInt($('f-lim').value, 10);
+    var r = filas.filter(function (a) {
+      return (!q || a.ruta.toLowerCase().indexOf(q) >= 0) && (!fe || (a.ext || '(sin ext.)') === fe) && (!fc || a.carpeta === fc) && (!fg || a.categoria === fg);
+    });
+    r.sort(function (a, b) {
+      var x = a[orden.k], y = b[orden.k];
+      if (x === null || x === undefined) x = -1; if (y === null || y === undefined) y = -1;
+      if (typeof x === 'string') return orden.asc ? x.localeCompare(y, 'es') : y.localeCompare(x, 'es');
+      return orden.asc ? x - y : y - x;
+    });
+    var total = r.length;
+    if (lim > 0) r = r.slice(0, lim);
+    var tb = document.querySelector('#tabla tbody');
+    tb.textContent = '';
+    r.forEach(function (a, i) {
+      var tr = document.createElement('tr');
+      function td(txt, cls) { var c = document.createElement('td'); if (cls) c.className = cls; c.textContent = txt; tr.appendChild(c); return c; }
+      td(String(i + 1), 'num');
+      var cr = td(a.ruta, 'ruta');
+      if (a.pct >= CFG.umbral && a.tokens >= CFG.minTok) cr.appendChild(insignia('⚠ pesado', 'i-pesado'));
+      if (a.duplicado) cr.appendChild(insignia('⧉ duplicado', 'i-dup'));
+      if (a.minificado) cr.appendChild(insignia('≋ ¿minificado?', 'i-min'));
+      td(a.categoria || ''); td(a.ext || '—');
+      td(nf.format(a.tokens), 'num');
+      var cp = td(nf.format(a.pct) + '%', 'num pct-celda');
+      var bar = document.createElement('span'); bar.className = 'pct-barra'; bar.style.setProperty('--w', (a.pct / maxPct * 100).toFixed(1) + '%'); bar.setAttribute('aria-hidden', 'true'); cp.appendChild(bar);
+      td(a.lineas === null || a.lineas === undefined ? '—' : nf.format(a.lineas), 'num');
+      td(kb(a.bytes), 'num');
+      tb.appendChild(tr);
+    });
+    $('t-estado').textContent = 'Mostrando ' + r.length + ' de ' + total + ' archivo(s) con este filtro (' + D.archivos.length + ' en el reporte).';
+  }
+  document.querySelectorAll('#tabla th button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var k = b.getAttribute('data-k');
+      orden = { k: k, asc: orden.k === k ? !orden.asc : ['ruta', 'carpeta', 'ext', 'categoria'].indexOf(k) >= 0 };
+      document.querySelectorAll('#tabla th').forEach(function (th) { var bt = th.querySelector('button'); if (!bt) return; bt.textContent = bt.textContent.replace(/ [▲▼]$/, ''); th.setAttribute('aria-sort', 'none'); });
+      b.textContent += orden.asc ? ' ▲' : ' ▼';
+      b.parentNode.setAttribute('aria-sort', orden.asc ? 'ascending' : 'descending');
+      pintar();
+    });
+  });
+  ['f-buscar', 'f-ext', 'f-carp', 'f-cat', 'f-lim'].forEach(function (id) { $(id).addEventListener('input', pintar); });
+  document.addEventListener('keydown', function (e) {
+    var t = e.target.tagName;
+    if (e.key === '/' && t !== 'INPUT' && t !== 'SELECT' && t !== 'TEXTAREA') { e.preventDefault(); $('f-buscar').focus(); }
+  });
+
+  function descargar(nombre, tipo, contenido) {
+    var url = URL.createObjectURL(new Blob([contenido], { type: tipo }));
+    var a = document.createElement('a'); a.href = url; a.download = nombre; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    aviso('Descargado: ' + nombre);
+  }
+  function celda(v) { v = v === null || v === undefined ? '' : String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
+  $('b-csv').addEventListener('click', function () {
+    var cab = ['ruta', 'carpeta', 'categoria', 'ext', 'lenguaje', 'tokens', 'pct', 'lineas', 'bytes', 'duplicado', 'minificado'];
+    var txt = cab.join(',') + '\n' + D.archivos.map(function (a) { return cab.map(function (k) { return celda(a[k]); }).join(','); }).join('\n');
+    descargar('token-report-' + D.meta.proyecto + '.csv', 'text/csv;charset=utf-8', '﻿' + txt);
+  });
+  $('b-json').addEventListener('click', function () { descargar('token-report-' + D.meta.proyecto + '.json', 'application/json', JSON.stringify(D, null, 2)); });
+  $('b-copiar').addEventListener('click', function () {
+    var txt = document.getElementById('resumen-texto').textContent;
+    function respaldo() { var ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); aviso('Resumen copiado'); } catch (e) { aviso('No se pudo copiar'); } ta.remove(); }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(function () { aviso('Resumen copiado'); }, respaldo); else respaldo();
+  });
+  var temas = CFG.temas, it = 0;
+  function aplicarTema() {
+    var t = temas[it];
+    if (t === CFG.porDefecto && CFG.porDefecto !== 'auto') document.documentElement.removeAttribute('data-tema');
+    else if (t === 'auto') document.documentElement.removeAttribute('data-tema');
+    else document.documentElement.setAttribute('data-tema', t);
+    $('b-tema').textContent = 'Tema: ' + CFG.nombres[t];
+  }
+  $('b-tema').addEventListener('click', function () { it = (it + 1) % temas.length; aplicarTema(); });
+  aplicarTema();
+  pintar();
+})();
+</script>
+</body>
+</html>
